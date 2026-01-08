@@ -1,6 +1,6 @@
 {
 	"name": "@aiteera/n8n-nodes-antijection",
-	"version": "0.2.2",
+	"version": "0.2.3",
 	"description": "Detect prompt injection and safety issues",
 	"license": "MIT",
 	"homepage": "",
