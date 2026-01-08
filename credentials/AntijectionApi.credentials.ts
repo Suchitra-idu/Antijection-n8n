@@ -9,7 +9,7 @@ export class AntijectionApi implements ICredentialType {
 	name = 'antijectionApi';
 	displayName = 'Antijection API';
 	documentationUrl = 'https://antijection.com/docs';
-	icon: Icon = { light: 'file:../../icons/antijection.svg', dark: 'file:../../icons/antijection.svg' };
+	icon: Icon = 'file:../icons/antijection.svg';
 	testedBy = [
 		'antijection',
 	];
