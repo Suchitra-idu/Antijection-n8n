@@ -87,24 +87,14 @@ export class Antijection implements INodeType {
                         description: 'Select rule categories to disable. Useful for coding assistants that need to process SQL or shell commands.',
                         options: [
                             {
-                                name: 'Ignore Instructions',
-                                value: 'ignore_instructions',
-                                description: 'Direct attempts to override system prompts',
+                                name: 'Command Injection',
+                                value: 'command_injection',
+                                description: 'Shell command execution attempts',
                             },
                             {
-                                name: 'System Override',
-                                value: 'system_override',
-                                description: 'Attempts to toggle developer/admin modes',
-                            },
-                            {
-                                name: 'Prompt Extraction',
-                                value: 'prompt_extraction',
-                                description: 'Attempts to leak the system prompt',
-                            },
-                            {
-                                name: 'Role Hijacking',
-                                value: 'role_hijacking',
-                                description: 'Forcing the AI into a specific persona',
+                                name: 'Emojis',
+                                value: 'emojis',
+                                description: 'Suspicious or excessive use of emojis',
                             },
                             {
                                 name: 'Encoded Attacks',
@@ -117,24 +107,14 @@ export class Antijection implements INodeType {
                                 description: 'Common misspellings of attack keywords',
                             },
                             {
+                                name: 'Ignore Instructions',
+                                value: 'ignore_instructions',
+                                description: 'Direct attempts to override system prompts',
+                            },
+                            {
                                 name: 'Many Shot',
                                 value: 'many_shot',
                                 description: 'Overloading context with fake Q&A',
-                            },
-                            {
-                                name: 'SQL Injection',
-                                value: 'sql_injection',
-                                description: 'Common SQL injection patterns',
-                            },
-                            {
-                                name: 'Command Injection',
-                                value: 'command_injection',
-                                description: 'Shell command execution attempts',
-                            },
-                            {
-                                name: 'XSS Patterns',
-                                value: 'xss_patterns',
-                                description: 'Script injection and XSS vectors',
                             },
                             {
                                 name: 'Path Traversal',
@@ -142,9 +122,9 @@ export class Antijection implements INodeType {
                                 description: 'File system traversal attempts',
                             },
                             {
-                                name: 'Unusual Punctuation',
-                                value: 'unusual_punctuation',
-                                description: 'Abnormal clusters of special characters',
+                                name: 'Prompt Extraction',
+                                value: 'prompt_extraction',
+                                description: 'Attempts to leak the system prompt',
                             },
                             {
                                 name: 'Repetition Attacks',
@@ -152,9 +132,29 @@ export class Antijection implements INodeType {
                                 description: 'Excessive or interspersed repetition',
                             },
                             {
-                                name: 'Emojis',
-                                value: 'emojis',
-                                description: 'Suspicious or excessive use of emojis',
+                                name: 'Role Hijacking',
+                                value: 'role_hijacking',
+                                description: 'Forcing the AI into a specific persona',
+                            },
+                            {
+                                name: 'SQL Injection',
+                                value: 'sql_injection',
+                                description: 'Common SQL injection patterns',
+                            },
+                            {
+                                name: 'System Override',
+                                value: 'system_override',
+                                description: 'Attempts to toggle developer/admin modes',
+                            },
+                            {
+                                name: 'Unusual Punctuation',
+                                value: 'unusual_punctuation',
+                                description: 'Abnormal clusters of special characters',
+                            },
+                            {
+                                name: 'XSS Patterns',
+                                value: 'xss_patterns',
+                                description: 'Script injection and XSS vectors',
                             },
                         ],
                     },
@@ -256,15 +256,30 @@ export class Antijection implements INodeType {
                         item: i,
                     },
                 });
-            } catch (error: any) {
+            } catch (error) {
                 // Enhanced error handling with user-friendly messages
-                let errorMessage = error.message;
+                const e = error as {
+                    message: string;
+                    response?: {
+                        status?: number;
+                        body?: {
+                            detail?: string;
+                            error?: string;
+                        };
+                        data?: {
+                            detail?: string;
+                            error?: string;
+                        };
+                    };
+                    statusCode?: number;
+                };
+                let errorMessage = e.message;
                 let errorDetails = '';
 
                 // Check if it's an HTTP error
-                if (error.response) {
-                    const statusCode = error.response.status || error.statusCode;
-                    const responseBody = error.response.body || error.response.data;
+                if (e.response) {
+                    const statusCode = e.response.status || e.statusCode;
+                    const responseBody = e.response.body || e.response.data;
 
                     switch (statusCode) {
                         case 401:
@@ -291,7 +306,7 @@ export class Antijection implements INodeType {
                             break;
                         default:
                             errorMessage = `HTTP ${statusCode} error`;
-                            errorDetails = responseBody?.detail || responseBody?.error || error.message;
+                            errorDetails = responseBody?.detail || responseBody?.error || e.message;
                     }
                 }
 
@@ -300,7 +315,7 @@ export class Antijection implements INodeType {
                         json: {
                             error: errorMessage,
                             details: errorDetails,
-                            statusCode: error.response?.status || error.statusCode,
+                            statusCode: e.response?.status || e.statusCode,
                         },
                         pairedItem: {
                             item: i,
