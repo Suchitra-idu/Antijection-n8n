@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-antijection",
-	"version": "0.2.3",
+	"version": "0.2.4",
 	"description": "Detect prompt injection and safety issues",
 	"license": "MIT",
 	"homepage": "https://www.antijection.com",
